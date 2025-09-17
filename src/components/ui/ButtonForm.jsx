@@ -5,7 +5,6 @@ import Spinner from './Spinner'; // Composant de chargement
 
 const ButtonForm = ({
   children,
-  color = 'default',
   size = 'md',
   variant='default',
   isLoading=false,
@@ -18,26 +17,21 @@ const ButtonForm = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = " mr-4 inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+  const baseStyles = " m-1 inline-flex cursor-pointer rounded-full  transition-all duration-200 ease-in-out ";
   
-  const colors = {
+  const variants = {
     primary: "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500",
-    secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
-    success: "bg-green-primary text-white hover:bg-green-700 focus:ring-green-500",
+    secondary: "bg-gray-400 text-brandblue  font-semibold w-full py-2 rounded hover:bg-gray-600  hover:text-gray-100 transition duration-300 ease-in saturate-150 flex justify-center",
+    success: "bg-brandgreen text-brandblue font-semibold hover:text-brandgreen w-full hover:bg-brandblue focus:ring-brandblue flex justify-center",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     warning: "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500",
-    default:'',
-    
-  };
-
-  const  variants = {
     outline_primary: "border-1 border-indigo-600 text-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500  hover:text-white",
-    outline_secondary: "border-2 border-gray-300 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
-    outline_success:"border-2 border-gray-300 text-green-600 hover:bg-green-700 focus:ring-green-500  hover:text-white  ",
-    outline_danger:"border-1 border-red-600  text-red-600  hover:bg-red-700  focus:ring-red-600 hover:text-white ",
-    outline_warning:"border-2 border-yellow-500  text-yellow-500  hover:bg-yellow-600  focus:ring-yellow-500   hover:text-white  ",
+    outline_secondary: "border-1 border-gray-300 text-gray-900 hover:bg-gray-300 focus:ring-gray-500",
+    outline_success:"border-1 border-green-300 text-green-600 hover:bg-green-700 focus:ring-green-500  hover:text-white  ",
+    outline_danger:"border-1 border-red-300  text-red-600  hover:bg-red-700  focus:ring-red-600 hover:text-white ",
+    outline_warning:"border-1 border-yellow-300  text-yellow-500  hover:bg-yellow-600  focus:ring-yellow-500   hover:text-white  ",
     ghost: "text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500",
-    default:'',
+    default:' flex items-center justify-center',
   };
 
   const sizes = {
@@ -59,7 +53,6 @@ const ButtonForm = ({
   const buttonClasses = clsx(
     baseStyles,
     variants[variant],
-    colors[color],
     sizes[size],
     fullWidth && 'w-full',
     className
@@ -67,7 +60,7 @@ const ButtonForm = ({
 
   const iconClasses = clsx(
     iconSizes[size],
-    iconPosition === 'left' ? 'mr-2' : 'ml-2'
+    iconPosition === 'item-center' ? 'mr-2' : 'ml-1'
   );
 
   const renderIcon = () => {
@@ -91,6 +84,7 @@ const ButtonForm = ({
     return (
       <>
         {iconPosition === 'left' && renderIcon()}
+        {iconPosition === 'center' && <span className="flex justify-center items-center">{renderIcon()}</span>}
         {children}
         {iconPosition === 'right' && renderIcon()}
       </>
@@ -113,13 +107,13 @@ const ButtonForm = ({
 ButtonForm.propTypes = {
   children: PropTypes.node.isRequired,
   color: PropTypes.oneOf(['primary', 'secondary', 'success', 'danger', 'warning','default']),
-  variant: PropTypes.oneOf(['outline_primary','outline_secondary', 'outline_danger','outline_warning','outline_success','ghost','default']),
+  variant: PropTypes.oneOf(['outline_primary','outline_secondary', 'outline_danger','outline_warning','outline_success','ghost','default','primary', 'secondary', 'success', 'danger', 'warning']),
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
   isLoading: PropTypes.bool,
   disabled: PropTypes.bool,
   fullWidth: PropTypes.bool,
   icon: PropTypes.element,
-  iconPosition: PropTypes.oneOf(['left', 'right']),
+  iconPosition: PropTypes.oneOf(['left', 'right','center']),
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   className: PropTypes.string,
   onClick: PropTypes.func,

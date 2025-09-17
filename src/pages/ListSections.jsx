@@ -14,13 +14,23 @@ const ListSections = () => {
     { key: 'createdAt', title: 'Créé le:' },
   ];
     useEffect(() => {
-        axios.get('/api/sections')
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+        axios.get('/api/sections', {
+            headers: {  
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then(response => {
                 setSections(response.data);
                 setLoading(false);
                 console.log(response.data);
             })
             .catch(err => {
+              toast.error('Erreur lors du chargement des sections');
                 setError(err.message || 'Erreur lors du chargement');
                 setLoading(false);
             });
@@ -63,42 +73,53 @@ const ListSections = () => {
     }
   }, [actionData, navigate]);
 
- const handleDelete = async (id) => {
-  const isConfirmed = window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
-  
-  if (!isConfirmed) {
-    return;
-  }
+  /*const handleDelete = useCallback((id) => {
+    axios.delete(`/api/section/${id}`)
+      .then(() => {
+        toast.success("Section supprimée avec succès");
+        setSections(sections.filter(section => section._id !== id));
+      })
+      .catch(error => {
+        toast.error("Erreur lors de la suppression de la section");
+        console.error("Erreur lors de la suppression :", error);
+      });
+  }, [sections]);*/
+  const handleDelete = async (id) => {
+  const confirm = window.confirm(`Êtes-vous sûr de vouloir supprimer la section ${id} ?`);
+  if (!confirm) return;
+
+  setLoading(true);
+
   try {
-    // Afficher un indicateur de chargement si nécessaire
-    setLoading(true);
-    // Appel à l'API pour supprimer le produit
-         axios.delete(`/api/section/${id}`).then(response => {
-          setSections(response.data.sections);
-          setLoading(false);
-        })
-    // eslint-disable-next-line no-undef
-    if (response.status === 200) {
-      // Mise à jour de la liste des produits après suppression
-      setSections(sections.filter(section => section._id !== id));
-      navigate(`/dashboard/list-sections`);
-      toast.success('zone supprimé avec succès');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
     }
-  } catch (error) {
-    // Gestion des erreurs
-    console.error('Erreur lors de la suppression:', error);
-    if (error.response?.status === 404) {
-      toast.error('zone non trouvé');
-    } else if (error.response?.status === 403) {
-      toast.error('Vous n\'avez pas les droits pour effectuer cette action');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+    const res = await axios.delete(`/api/sections/${id}`, { headers });
+    
+    if (res.status === 200) {
+      setSections(prev => prev.filter(s => s._id !== id));
+      toast.success('Section supprimée avec succès');
     } else {
-      toast.error('Une erreur est survenue lors de la suppression');
+      toast.error(`Section non trouvée ou déjà supprimée (${res.status})`);
     }
+
+  } catch (error) {
+    if (error.response?.status === 403) {
+      toast.error('vous devez être administrateur pour supprimer une section');
+    } else {
+      toast.error('Erreur lors de la suppression');
+    }
+    console.error('Suppression échouée:', error);
   } finally {
-    // Désactiver l'indicateur de chargement
     setLoading(false);
   }
 };
+
 
     if (loading) return <div>Chargement...</div>;
     if (error) return <div>Erreur: {error}</div>;

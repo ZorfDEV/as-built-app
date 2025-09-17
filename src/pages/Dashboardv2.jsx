@@ -6,20 +6,23 @@ import { useState } from 'react';
 const Dashboard = () => {
 
    const [darkMode, setDarkMode] = useState(false);
+   const [isOpen, setIsOpen] = useState(false);
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+    console.log("Dark mode toggled:", !darkMode);
   };
+const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+   };
 
- 
-
+  
   return (
-    <div className={`${darkMode && 'dark'} font-quicksand`}>
-    <div className="flex h-screen bg-zinc-100 dark:bg-zinc-950">
+    <div className={`flex min-h-screen bg-slate-200 dark:bg-darklayout ${darkMode && 'dark'} font-quicksand `}>
       {/* Sidebar */}
-        <Sidebarv2 />
+        <Sidebarv2 isOpen={isOpen}  toggleSidebar={toggleSidebar} />
       {/* Main Content */}
-        <Maincontent2 toggleDarkMode={toggleDarkMode} darkMode={darkMode}  />
-    </div>
+        <Maincontent2  toggleDarkMode={toggleDarkMode} darkMode={darkMode} isOpen={isOpen} />
     </div>
   )
 };

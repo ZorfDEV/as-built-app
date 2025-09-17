@@ -17,7 +17,7 @@ const Input = ({
   return (
     <div className="relative">
         {IconComponent && (
-            <div className='grid place-items-center absolute text-gray-500 top-2/4 right-3 -translate-y-2/4 w-5 h-5'>
+            <div className='grid place-items-center absolute text-gray-500 top-2/4 right-3 -translate-y-2/4 w-5 h-5 dark:text-darktext-primary'>
             {IconComponent }
           </div>
         )}
@@ -30,10 +30,11 @@ const Input = ({
           required={required}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={` text-gray-500 font-sans font-normal outline-none border rounded-md hover:border-green-600 w-full
-          duration-200 peer focus:border-green-600 focus:border-2 bg-inherit ${className}`}/>
-<label  htmlFor={id} className="absolute left-0 top-2 px-1 text-sm/6 capitalize-first-letters tracking-wide peer-focus:text-green-600 text-gray-400
- pointer-events-none duration-200 peer-focus:text-[11px] peer-focus:-translate-y-5 peer-focus:bg-white ml-2 peer-valid:text-[11px] peer-valid:-translate-y-5 peer-valid:bg-white ">
+          className={` text-gray-500 font-sans font-normal outline-none  hover:border-brandgreen w-full
+          bg-transparent rounded-lg border px-4 border-gray-300 appearance-none   focus:outline-none focus:ring-0  peer focus:border-brandgreen  dark:border-darkborder ${className}`}/>
+<label for="floating_filled"
+                className="absolute text-sm text-gray-500  duration-300 transform-translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white  px-2 peer-focus:px-2 peer-focus:text-brandgreen peer-focus:dark:text-brandgreen peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-valid:text-[12px] peer-valid:-translate-y-4 start-1
+                dark:bg-surface dark:text-darktext-primary ">
   {label}
  </label>
 </div>

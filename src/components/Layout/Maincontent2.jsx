@@ -1,15 +1,12 @@
 import { Outlet } from 'react-router-dom';
-//import React from 'react';
-//import {  FaMoon, FaSun } from "react-icons/fa";
-const Maincontent = () => {
+import Header2 from './Header2';
+
+const Maincontent = ({ toggleDarkMode, darkMode, isOpen }) => {
   return (
-   <div className=" maincotent flex-1 flex flex-col  h-screen bg-[#edf1f0] dark:bg-[#273943] ">
-    
-      {/* Display orders */}
-      <div className="p-0 flex-1  z-20 overflow-y-auto">
-        <Outlet />
-      
-    </div>
+  <div className={`flex-1 min-h-screen   bg-slate-200 ${isOpen ? "md:ml-44":"ml-16"} transition-all duration-300
+    dark:bg-darklayout z-10 sm:w-full`}>
+ <Header2 toggleDarkMode={toggleDarkMode} darkMode={darkMode}  />
+       <Outlet context={{ darkMode, isOpen }} />
     </div>
   );
 }

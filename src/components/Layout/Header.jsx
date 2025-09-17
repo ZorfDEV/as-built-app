@@ -18,7 +18,7 @@ const Header = ({darkMode, toggleDarkMode,toggleSidebar}) => {
 };
 
   return (
-  <header className="  w-full border-b-gray-200 dark:bg-[#263940] dark:border-gray-700 dark:border-b-1 bg-[#edf1f0] shadow-lg dark:shadow-none">
+  <header className="  w-full border-b-gray-200 dark:bg-[#263940] dark:border-gray-700 dark:border-b-1 bg-white/80 shadow-lg dark:shadow-none">
 <div className="px-2 py-3 lg:px-5 lg:py-3">
         <div className="flex  items-center justify-between">
             <div className="flex items-center justify-start  rtl:justify-end">

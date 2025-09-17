@@ -5,7 +5,6 @@ import TableData from './../components/ui/TableData'
 import toast from 'react-hot-toast'; 
 
 const ListPoints = () => {
-
     const [points, setPoints] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,16 +13,16 @@ const ListPoints = () => {
         { key:'longitude', title: 'Longitude' },
         { key: 'latitude', title: 'Latitude' },
         { key: 'section_name', title: 'Section' },
-       { key: 'createdAt', title: 'Créé le:' },
+        { key: 'createdAt', title: 'Créé le:' },
     ];
 
-    const token = localStorage.getItem('token');
-    const headers = useMemo(() => ({
-            Authorization: `Bearer ${token}`
-         }), [token]);
+     const token = localStorage.getItem('token');
+            const headers = useMemo(() => ({
+                    Authorization: `Bearer ${token}`
+                 }), [token]);
 
     useEffect(() => {
-        axios.get('/api/points',{headers })
+        axios.get('/api/points/pointsofcup',{headers})
             .then(response => {
                 setPoints(response.data);
                 console.log('list pt',response.data);
@@ -62,18 +61,17 @@ const ListPoints = () => {
   if (!confirm) return;
      setLoading(true);
 
-        axios.delete(`/api/points/${id}`,{headers })
+        axios.delete(`/api/points/${id}`,{headers})
             .then(() => {
                 setPoints(points.filter(point => point._id !== id));
                 toast.success('Point supprimé avec succès');
             })
             .catch(error => {
             if (error?.response?.status === 403) {
-                toast.error('Vous devez être administrateur pour supprimer un point');
+                toast.error('Vous devez être administrateur pour supprimer un PI');
             } else {
-            toast.error("Erreur lors de la suppression du point");
+            toast.error("Erreur lors de la suppression du marqueur");
             }
-            console.error("Erreur lors de la suppression :", error);
             setLoading(false);
         });
     }, [points,headers]);
@@ -105,7 +103,7 @@ const ListPoints = () => {
     if (error) return <div>{error}</div>;
 
     return (
-       <div className='translate-all p-4 flex-1'>
+       <div className='p-6 md:p-10 sm:p-8 '>
      <TableData data={points} columns={columns} goto='/dashboard/add-point'
                  handleView={handleView} handleEdit={handleEdit} handleDelete={handleDelete}
                   formatDataForExport={formatDataForExport()}  fileNames='Mapref'/>

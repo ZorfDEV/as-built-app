@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -14,40 +14,35 @@ import { MdAttachFile } from "react-icons/md";
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import SwitchMode from './../components/ui/SwitchMode'; // Assurez-vous que le chemin est correct
+import { useAuth } from './../contexts/AuthContext'; // Ajout de l'import du hook useAuth
+import { convertDMSToDecimal } from './../utils/distance';
 
 export default function AddPoint() {
+
   const [tab, setTab] = useState('Saisie');
   const [sections, setSections] = useState([]);
   const [marqueurs, setMarqueurs] = useState([]);
- 
+  const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [excelPreview, setExcelPreview] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
+   const token = localStorage.getItem('token');
+      const headers = useMemo(() => ({
+              Authorization: `Bearer ${token}`
+           }), [token]);
+
   useEffect(() => {
-    axios.get('http://localhost:5000/api/sections').then(res => {
+    axios.get('/api/sections',{headers}).then(res => {
       setSections(res.data);
       console.log('Sections:', res.data);
     });
-    axios.get('http://localhost:5000/api/marqueurs').then(res => {
+    axios.get('/api/marqueurs', { headers }).then(res => {
       setMarqueurs(res.data);
       console.log('Marqueurs:', res.data);
     });
-  }, []);
-
- const convertDMSToDecimal = (dmsString) => {
-  const regex = /(\d{1,3})[°:\s]*(\d{1,2})[′':\s]*(\d{1,2}(?:\.\d+)?)[″"]?\s*([NSEW])/i;
-  const match = dmsString.match(regex);
-
-  if (!match) return null;
-
-  const [, deg, min, sec, dir] = match;
-  const decimal = parseInt(deg) + parseInt(min) / 60 + parseFloat(sec) / 3600;
-
-  if (dir === 'S' || dir === 'W') return -decimal;
-  return decimal;
-};
+  }, [headers]);
 
 const handleSubmitForm = async (e) => {
   e.preventDefault();
@@ -75,11 +70,14 @@ const handleSubmitForm = async (e) => {
       latitude: latitudeconv,
       longitude: longitudeconv,
       section_id: formData.get('section_id'),
-      marqueur_id: formData.get('marqueur_id')
+      marqueur_id: formData.get('marqueur_id'),
+      nature: 'pt-asbuilt',
+      user_id: user.id, 
+      status: 'inactive'
     };
 
     try {
-      await axios.post('http://localhost:5000/api/points', pointData);
+      await axios.post('/api/points', pointData,{headers});
       console.log('Point ajouté avec succès', pointData);
       toast.success('Point ajouté avec succès');
       e.target.reset(); 
@@ -89,90 +87,92 @@ const handleSubmitForm = async (e) => {
     }
   };
 
-  // Fonction pour convertir les coordonnées DMS en décimales
-  // DMS format: "N:45°30′15″, E:3°15′30″"
-  // Example usage: convertDMS("N:45°30′15″, E:3°15′30″") returns { lat: 45.5041667, lng: 3.2583333 }
+  // Fonction pour convertir les coordonnées DMS en décimal
   const convertDMS = (dmsString) => {
-    if (!dmsString) return null;
-    const regex = /([NSWE]):(\d{1,3})[°:\s](\d{1,2})[′:\s](\d{1,2}(\.\d+)?)[″]?/gi;
-    const matches = [...dmsString.matchAll(regex)];
-    let lat = null, lng = null;
+  if (!dmsString) return null;
+  // Expression régulière améliorée pour gérer les secondes décimales
+  const regex = /([NSWE]):\s*(\d{1,3})[°:\s]*(\d{1,2})[′':\s]*(\d{1,2}(?:\.\d+)?)[″"]?/gi;
+  const matches = [...dmsString.matchAll(regex)];
+  let lat = null, lng = null;
 
-    for (const match of matches) {
-      const [, dir, deg, min, sec] = match;
-      const decimal = parseInt(deg) + parseInt(min) / 60 + parseFloat(sec) / 3600;
-      if (dir === 'S') lat = -decimal;
-      else if (dir === 'N') lat = decimal;
-      else if (dir === 'W') lng = -decimal;
-      else if (dir === 'E') lng = decimal;
-    }
+  for (const match of matches) {
+    const [, dir, deg, min, sec] = match;
+    const decimal = parseInt(deg) + parseInt(min) / 60 + parseFloat(sec) / 3600;
+    if (dir === 'S') lat = -decimal;
+    else if (dir === 'N') lat = decimal;
+    else if (dir === 'W') lng = -decimal;
+    else if (dir === 'E') lng = decimal;
+  }
 
-    return { lat, lng };
-  };
+  return { lat, lng };
+};
 
   // Fonction pour lire le fichier Excel et prévisualiser les données
   // Elle vérifie les colonnes requises et convertit les coordonnées DMS si nécessaire
-  const handleExcelRead = (e) => {
-    const f = e.target.files[0];
-    setFile(f);
+const handleExcelRead = (e) => {
+  const f = e.target.files[0];
+  setFile(f);
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const data = new Uint8Array(evt.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-      if (raw.length === 0) {
-         toast.success('Fichier vide');
-        alert('Fichier vide');
-        setExcelPreview([]);
-        return;
+    if (raw.length === 0) {
+      toast.success('Fichier vide');
+      alert('Fichier vide');
+      setExcelPreview([]);
+      return;
+    }
+
+    const requiredCols = ['name', 'latitude', 'longitude', 'description','section_id', 'marqueur_id'];
+    const fileCols = Object.keys(raw[0]).map(c => c.toLowerCase().trim());
+const missing = requiredCols.filter(col => !fileCols.includes(col));
+    if (missing.length > 0) {
+      toast.error(`Colonnes manquantes : ${missing.join(', ')}`);
+      setExcelPreview([]);
+      return;
+    }
+
+    const validated = raw.map((row) => {
+      let lat = row.latitude ? row.latitude.trim() : '';
+      let lng = row.longitude ? row.longitude.trim() : '';
+
+      console.log('Ligne lue:', row);
+      console.log('Latitude:', lat, 'Longitude:', lng);
+
+      // Si ce n'est pas un nombre, on tente la conversion DMS
+      if (isNaN(lat) || isNaN(lng)) {
+        const converted = convertDMS(`${lat}, ${lng}`);
+        console.log('Coordonnées converties:', converted);
+        if (!converted || isNaN(converted.lat) || isNaN(converted.lng)) return null;
+        lat = converted.lat;
+        lng = converted.lng;
       }
+      if (isNaN(lat) || isNaN(lng)) {
+        console.error('Coordonnées invalides pour la ligne:', row);
+        return null;
+  }
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
 
-      const requiredCols = ['name', 'latitude', 'longitude', 'description','section_id', 'marqueur_id'];
-      const fileCols = Object.keys(raw[0]).map(c => c.toLowerCase().trim());
-      const missing = requiredCols.filter(col => !fileCols.includes(col));
-      if (missing.length > 0) {
-        toast.error(`Colonnes manquantes : ${missing.join(', ')}`);
-        //alert(`Colonnes manquantes : ${missing.join(', ')}`);
-        setExcelPreview([]);
-        return;
-      }
+      return {
+        ...row,
+        latitude: lat,
+        longitude: lng
+      };
+    }).filter(p => p && !isNaN(p.latitude) && !isNaN(p.longitude));
 
-      const validated = raw.map((row) => {
-        let lat = parseFloat(row.latitude);
-        let lng = parseFloat(row.longitude);
+    if (validated.length === 0) {
+      toast.error('Aucun point valide trouvé');
+    }
 
-        if (isNaN(lat) || isNaN(lng)) {
-          const converted = convertDMS(`S:${row.latitude}, E:${row.longitude}`);
-          if (!converted || isNaN(converted.lat) || isNaN(converted.lng)) return null;
-          lat = converted.lat;
-          lng = converted.lng;
-        }
-        if (isNaN(lat) || isNaN(lng)) {
-          console.error('Coordonnées invalides pour la ligne:', row);
-          return null;
-        }
-        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-
-
-        return {
-          ...row,
-          latitude: lat,
-          longitude: lng
-        };
-      }).filter(p => p && !isNaN(p.latitude) && !isNaN(p.longitude));
-
-      if (validated.length === 0) {
-        toast.error('Aucun point valide trouvé');
-      }
-
-      setExcelPreview(validated);
-      setCurrentPage(1);
-    };
-    reader.readAsArrayBuffer(f);
+    setExcelPreview(validated);
+    setCurrentPage(1);
   };
+  reader.readAsArrayBuffer(f);
+}; 
 
   // Fonction pour gérer l'upload du fichier Excel
   // Elle envoie les données au backend pour traitement
@@ -240,14 +240,14 @@ const handleSubmitForm = async (e) => {
           <ButtonContainer className="flex mt-6 w-full">
                           <ButtonForm
                             type="button"
-                            
-                            className="bg-gray-400 text-white w-full py-2 rounded hover:bg-gray-600"
+                             className="bg-gray-400 flex justify-center text-white w-full py-2 rounded hover:bg-gray-600 hover:scale-105 duration-300 transition ease-in "
                           >
                             Annuler
                           </ButtonForm>
                           <ButtonForm
                             type="submit"
-                            className="bg-green-700 text-white py-2 w-full transition duration-150 ease-in rounded hover:bg-green-600"
+                           className="bg-brandgreen text-white py-2 w-full transition ease-in rounded hover:bg-brandblue hover:scale-105 duration-300  hover:text-brandgreen justify-center"
+                
                           >
                             Ajouter
                           </ButtonForm>
@@ -260,44 +260,43 @@ const handleSubmitForm = async (e) => {
           
           
           <div className="col-span-full">
-             
-              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+          <div className="mt-2 flex justify-center rounded-lg  border-dashed
+           border-gray-900/25 px-6 py-10 dark:border-darkborder border-2 hover:border-brandgreen hover:scale-105 hover:text-brandgreen duration-300 transition ease-in w-full">
                 <div className="text-center">
                   <MdAttachFile aria-hidden="true" className="mx-auto size-12 text-gray-300"/>
                   <div className="mt-4 flex text-sm/6 text-gray-600">
                     <label
                       htmlFor="file-upload"
-                      className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 focus-within:outline-hidden hover:text-indigo-500"
+                      className="relative cursor-pointer rounded-md  font-semibold text-brandblue focus-within:ring-2 focus-within:ring-brandblue focus-within:ring-offset-2 focus-within:outline-hidden hover:text-brandgreen dark:text-darktext-primary"
                     >
                       <span>Upload a file</span>
                       <input id="file-upload" name="file"  accept=".xlsx" onChange={handleExcelRead} type="file" className="sr-only" />
                     </label>
-                    <p className="pl-1">or drag and drop</p>
                   </div>
-                  <p className="text-xs/5 text-gray-600">xlsx, up to 10MB</p>
+                  <p className="text-xs/5 text-gray-600 dark:text-darktext-secondary">xlsx, up to 10MB</p>
                 </div>
               </div>
             </div>
-        <ButtonContainer className="flex mt-6 w-full">
+        <ButtonContainer className="flex mt-6 w-full justify-center">
           {file && (
                           <ButtonForm
                             type="button"
                             
-                            className="bg-gray-400 text-white w-full py-2 rounded hover:bg-red-500"
+                            className="bg-gray-400 text-white font-semibold w-[100px] py-2 rounded hover:bg-red-500 transition duration-300 ease-in  hover:scale-105"
                           >
                             <span onClick={handleResetFile}>Supprimer</span>
                           </ButtonForm>
                            )}
                           <ButtonForm
                             type="submit"
-                            className="bg-green-700 text-white py-2 w-[100px] transition duration-150 ease-in rounded hover:bg-green-600"
+                            className="bg-brandgreen text-brandblue py-2 w-[100px] transition duration-300 ease-in rounded hover:bg-brandblue hover:scale-105  hover:text-brandgreen justify-center font-semibold"
                           >
                             Importer
                           </ButtonForm>
                         </ButtonContainer>
-          
-          <p className="text-sm text-gray-500 mt-2">Fichier sélectionné : {file ? file.name : 'Aucun fichier sélectionné'}</p>
-          <p className="text-sm text-gray-500 mt-2">Assurez-vous que le fichier contient les champs requis</p>
+
+          <p className="text-sm text-gray-500 mt-2 dark:text-darktext-primary">Fichier sélectionné : {file ? file.name : 'Aucun fichier sélectionné'}</p>
+          <p className="text-sm text-gray-500 mt-2 dark:text-darktext-primary">Assurez-vous que le fichier contient les champs requis</p>
 
           
         </form>

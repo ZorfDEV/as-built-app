@@ -17,11 +17,11 @@ export default function ToggleSwitch({ options = ['Saisie', 'Importer'], default
   };
 
   return (
-    <div className="relative bg-green-500 p-1 rounded-full flex gap-1 w-fit">
+    <div className="relative bg-brandblue p-1 rounded-full flex gap-1 w-fit">
       <motion.div
         layout
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-white z-0 ${active === options[0] ? 'left-1' : 'left-1/2'}`}
+        className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-brandgreen z-0 ${active === options[0] ? 'left-1' : 'left-1/2'}`}
       />
 
       {options.map(option => (
@@ -29,7 +29,7 @@ export default function ToggleSwitch({ options = ['Saisie', 'Importer'], default
           key={option}
           onClick={() => handleToggle(option)}
           className={`relative z-10 w-auto py-2 px-3 cursor-pointer text-xs font-medium rounded-full transition-all duration-300
-            ${active === option ? 'text-gray-900' : 'text-white'}
+            ${active === option ? 'text-brandblue' : 'text-brandgreen'}
            `}
         >
           {option.charAt(0).toUpperCase() + option.slice(1)}

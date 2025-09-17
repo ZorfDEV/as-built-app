@@ -15,7 +15,7 @@ const Textarea = ({
     maxLength,
     label
 }) => {
-    const baseClasses = "w-full px-3 py-2 border rounded-lg text-gray-500 font-sans font-normal outline-none  rounded-md hover:border-green-600 duration-200 peer focus:border-green-600 bg-inherit";
+    const baseClasses = "w-full px-3 py-2 border rounded-lg text-gray-500 font-sans font-normal outline-none  rounded-md hover:border-brandgren dark:border-darkborder  dark:bg-surface dark:text-darktext-primary duration-200 peer focus:border-brandgreen bg-inherit";
     const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white";
     
     return (
@@ -34,8 +34,8 @@ const Textarea = ({
                 maxLength={maxLength}
                 className={`${baseClasses} ${disabledClasses} ${className}`}
             />
-<label  htmlFor={id} className="absolute left-0 top-2 px-1 text-md uppercase tracking-wide peer-focus:text-green-600 text-gray-400
-pointer-events-none duration-200 peer-focus:text-[11px] peer-focus:-translate-y-4 bg-white ml-2 peer-valid:text-[11px] peer-valid:-translate-y-4 ">
+<label  htmlFor={id} className="absolute left-0 top-2 px-1 text-md uppercase tracking-wide peer-focus:text-brandgreen text-gray-400
+pointer-events-none duration-200 peer-focus:text-[11px] peer-focus:-translate-y-4 bg-white ml-2 peer-valid:text-[11px] peer-valid:-translate-y-4 dark:bg-surface dark:text-darktext-primary ">
 {label}
 </label>  
             {maxLength && (

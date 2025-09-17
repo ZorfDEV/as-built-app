@@ -33,7 +33,7 @@ const ActionButton = ({
   const actions = [
     {
       id: 'view',
-      label: 'Voir',
+      label: 'Détails',
       icon: <FiEye className="w-4 h-4" />,
       handler: onView,
       className: 'text-gray-600 hover:text-indigo-800 hover:bg-indigo-50'
@@ -66,7 +66,7 @@ const ActionButton = ({
   };
 
   return (
-    <div className="relative inline-block text-left" ref={buttonRef}>
+    <div className="relative inline-block text-left " ref={buttonRef}>
       <button
         type="button"
         onClick={(e) => {
@@ -88,7 +88,7 @@ const ActionButton = ({
         <div 
           ref={menuRef}
           className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white 
-            ring-1 ring-black ring-opacity-5 z-50"
+            ring-1 ring-gray-200 ring-opacity-5 z-2000 dark:bg-surface dark:border-darkborder dark:ring-darkborder  "
         >
           <div className="py-1">
             {actions.map((action) => !action.disabled && (
@@ -97,7 +97,7 @@ const ActionButton = ({
                 type="button"
                 className={`
                   w-full px-4 py-2 text-sm flex items-center justify-between
-                  transition-colors duration-150 ${action.className}
+                  transition-colors duration-150 dark:text-darktext-primary ${action.className}
                 `}
                 onClick={handleClick(action.handler)}
               >

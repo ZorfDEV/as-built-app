@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 
-const ButtonContainer = ({ children, className = '', align = 'center' }) => {
+const ButtonContainer = ({ children, className = '', align = '' }) => {
   const containerClasses = clsx(
-    'flex gap-3 py-4',
+    'flex gap-3 ',
     {
       'justify-end': align === 'right',
       'justify-start': align === 'left',
-      'justify-center': align === 'center',
+      'justify-center ': align === 'center',
     },
     className
   );

@@ -9,17 +9,23 @@ const InputSelect = ({id,datas, name , label,defaultValue,placeholder, type='tex
           defaultValue={defaultValue}
           required
           type = {type}
-          className="px-4 py-2 text-gray-500 font-sans font-normal outline-none border rounded-md hover:border-green-600 w-full
-          duration-200 peer focus:border-green-600 bg-inherit">
-          <option value=""></option>
-          {datas.map((row) => (
-            <option key={row.id} value={row._id}>
-              {row.name}
-            </option>
-          ))}
+          className="px-4 py-2 text-gray-500 font-sans font-normal outline-none border rounded-md hover:border-brandgreen w-full
+          duration-200 peer focus:border-brandgreen bg-inherit dark:border-darkborder  focus:outline-none focus:ring-0 accent-brandgreen dark:accent-brandgreen ">
+          <option value="" ></option>
+          {datas.map((row) =>
+            row._id === defaultValue ? (
+              <option key={row.id} value={row._id} selected>
+                {row.name}
+              </option>
+            ) : (
+              <option key={row.id} value={row._id}>
+                {row.name}
+              </option>
+            )
+          )}
         </select>
-        <label  htmlFor={id} className="absolute left-0 top-2 px-1 text-md uppercase tracking-wide peer-focus:text-green-600 text-gray-400
- pointer-events-none duration-200 peer-focus:text-[11px] peer-focus:-translate-y-4 bg-white ml-2 peer-valid:text-[11px] peer-valid:-translate-y-4 ">
+        <label  htmlFor={id} className="absolute left-0 top-2 px-1 text-md uppercase tracking-wide peer-focus:text-brandgreen text-gray-400
+ pointer-events-none duration-200 peer-focus:text-[11px] peer-focus:-translate-y-4 bg-white ml-2 peer-valid:text-[11px] peer-valid:-translate-y-4 jj dark:bg-surface dark:text-darktext-primary ">
   {label}
  </label>
       </div>

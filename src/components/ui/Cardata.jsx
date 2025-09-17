@@ -10,19 +10,20 @@ const CardSimple = ({
   noPadding = false 
 }) => {
   return (
-    <div className={`bg-white shadow-xl rounded-lg border dark:bg-gray-800 border-gray-200 ${className}`}>
+    <div className={` bg-white shadow-md rounded-2xl border dark:bg-surface
+     border-gray-200 dark:border-darkborder  ${className}`}>
       {/* Header */}
       {(title || subtitle || headerAction) && (
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+        <div className="px-6  border-b border-gray-200">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
             <div className=' flex-1 place-items-center'>
               {title && (
-                <h3 className="text-sm font-medium text-center  text-gray-900 dark:text-gray-100">
+                <h2 className="text-lg font-semibold  text-gray-800 dark:text-gray-100">
                   {title}
-                </h3>
+                </h2>
               )}
               {subtitle && (
-                <p className="mt-1 text-sm text-gray-400">
+                <p className=" text-sm text-gray-400 dark:text-darktext-secondary">
                   {subtitle}
                 </p>
               )}

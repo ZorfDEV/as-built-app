@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import axios from 'axios';
 import Input from './../components/ui/Input';
 import Textarea from './../components/ui/Textarea';
@@ -9,11 +9,17 @@ import ButtonContainer from './../components/ui/ButtonContainer';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function AddSection() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+    const headers = useMemo(() => ({
+                Authorization: `Bearer ${token}`
+             }), [token]);
  
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -24,16 +30,12 @@ export default function AddSection() {
   console.log('Données envoyées:', data);
 
   try {
-    await axios.post('http://localhost:5000/api/sections', data, {
-      headers: {
-  Authorization: `Bearer ${user.token}`
-}
-    });
+    await axios.post('/api/sections', data, {headers});
     toast.success('Section ajoutée avec succès');
-    setName('');
-    setDescription('');
+    navigate('/dashboard/list-sections');
   } catch (error) {
     console.error('Erreur lors de l’ajout de la section:', error);
+    console.error('Données envoyées en erreur:', data);
     toast.error('Erreur lors de l’ajout de la section');
   }
 };
@@ -48,7 +50,7 @@ export default function AddSection() {
         <Cardata
           title="Ajouter une section"
           subtitle="Formulaire d’ajout de section"
-          className="p-6 bg-white w-[400px] h-[400px] dark:bg-gray-800 shadow-md items-center"
+          className="p-6 bg-white w-[400px] h-[400px]  shadow-md items-center"
           noPadding
         >
           <div className="flex justify-center items-center p-4">
@@ -74,17 +76,14 @@ export default function AddSection() {
               <ButtonContainer className="flex mt-6 w-full">
                 <ButtonForm
                   type="button"
-                  onClick={() => {
-                    setName('');
-                    setDescription('');
-                  }}
-                  className="bg-gray-400 text-white w-full py-2 rounded hover:bg-gray-600"
+                  onClick={() => navigate(-1)}
+                  className="bg-gray-400 flex justify-center text-white w-full py-2 rounded hover:bg-gray-600 hover:scale-105 duration-300 transition ease-in "
                 >
                   Annuler
                 </ButtonForm>
                 <ButtonForm
                   type="submit"
-                  className="bg-green-700 text-white py-2 w-full transition duration-150 ease-in rounded hover:bg-green-600"
+                  className="bg-brandgreen text-white py-2 w-full transition ease-in rounded hover:bg-brandblue hover:scale-105 duration-300  hover:text-brandgreen justify-center"
                 >
                   Ajouter
                 </ButtonForm>

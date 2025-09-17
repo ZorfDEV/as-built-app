@@ -10,15 +10,47 @@ export function haversineDistance(lat1, lon1, lat2, lon2) {
 
 // utils/convertDMS.js
 export function convertDMSToDecimal(dmsString) {
- const regex = /(\d{1,3})[°:\s]*(\d{1,2})[′':\s]*(\d{1,2}(?:\.\d+)?)[″"]?\s*([NSEW])/i;
-  const match = dmsString.match(regex);
+  // Si c'est déjà un nombre → retourne directement
+  if (typeof dmsString === "number") return dmsString;
+  if (!isNaN(Number(dmsString))) return Number(dmsString);
 
-  if (!match) return null;
+  // Nettoyage : retirer les espaces inutiles
+  const str = dmsString.trim();
 
-  const [, deg, min, sec, dir] = match;
-  const decimal = parseInt(deg) + parseInt(min) / 60 + parseFloat(sec) / 3600;
+  // Regex : direction possible au début OU à la fin
+  const regex = /([NSEW])?[:\s-]*?(\d{1,3})[°:\s]*(\d{1,2})?[′':\s]*(\d{1,2}(?:\.\d+)?)?[″"]?\s*([NSEW])?/i;
+  const match = str.match(regex);
 
-  if (dir === 'S' || dir === 'W') return -decimal;
+  if (!match) {
+    console.warn("⚠️ Format non reconnu :", dmsString);
+    return null;
+  }
+
+  // Groupes capturés
+  let [, dir1, deg, min, sec, dir2] = match;
+
+  const dir = dir1 || dir2; // direction trouvée avant OU après
+  const degrees = parseInt(deg, 10) || 0;
+  const minutes = parseInt(min, 10) || 0;
+  const seconds = parseFloat(sec) || 0;
+
+  // Conversion en décimal
+  let decimal = degrees + minutes / 60 + seconds / 3600;
+
+  // Appliquer signe en fonction de la direction
+  if (dir && (dir.toUpperCase() === "S" || dir.toUpperCase() === "W")) {
+    decimal = -decimal;
+  }
+
   return decimal;
-  };
+}
+
+export function generateId(length = 5) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
