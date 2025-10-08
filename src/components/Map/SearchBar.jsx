@@ -1,14 +1,36 @@
 // src/components/SearchBar.jsx
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useMap } from "react-leaflet";
 import toast from "react-hot-toast";
 import { AiOutlineSearch } from "react-icons/ai";
+import axios from "axios";
+import { haversineDistance } from "../../utils/distance";
+import Cardata from "../ui/Cardata";
 
-function SearchBar({ points }) {
+const SearchBar = ({ points }) => {
   const [query, setQuery] = useState("");
   const map = useMap();
+  const token = localStorage.getItem("token");
 
-  const handleSearch = () => {
+  const [incidentId, setIncidentId] = useState("");
+  const [listpoints, setListpoints] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [currentPoint, setCurrentPoint] = useState(null);
+ const [visible, setVisible] = useState(true);
+
+  //if (!visible) return null; 
+
+
+  const headers = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+    }),
+    [token]
+  );
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
     if (!query.trim()) {
       toast.error("Veuillez entrer un nom ou des coordonnées GPS.");
       return;
@@ -29,7 +51,23 @@ function SearchBar({ points }) {
     const point = points.find((p) =>
       p.name.toLowerCase().includes(query.toLowerCase())
     );
+
     if (point) {
+      setCurrentPoint(point);
+
+      if (point.nature === "incident") {
+        try {
+          setIncidentId(point._id);
+          const res = await axios.get(`/api/points/closest/${point._id}`, {
+            headers,
+          });
+          setListpoints(res.data); // décalage géré par useEffect
+        } catch (error) {
+          console.error(error);
+          toast.error("Erreur lors de la recherche.", { incidentId });
+        }
+      }
+
       map.setView([point.latitude, point.longitude], 15);
       toast.success(`Point trouvé : ${point.name}`);
     } else {
@@ -39,11 +77,26 @@ function SearchBar({ points }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleSearch();
+      handleSearch(e);
     }
   };
 
+  // recalcul distance à chaque update de listpoints
+  useEffect(() => {
+    if (listpoints && currentPoint) {
+      const latA = currentPoint.latitude;
+      const lonA = currentPoint.longitude;
+      const latB = listpoints.latitude;
+      const lonB = listpoints.longitude;
+
+      const dist = haversineDistance(latA, lonA, latB, lonB);
+      setDistance(dist);
+      console.log("Point le plus proche :", listpoints, "Distance :", dist);
+    }
+  }, [listpoints, currentPoint]);
+
   return (
+    <div className="justify-center flex-col items-center">
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[2000] flex gap-2 items-center w-[500px] rounded-full bg-white/80 dark:bg-darkborder shadow-lg backdrop-blur-sm">
       <div className="relative flex-1">
         <input
@@ -61,8 +114,37 @@ function SearchBar({ points }) {
           <AiOutlineSearch className="h-4 w-4" />
         </button>
       </div>
+      </div>
+    {distance !== null && listpoints && visible && (
+      <div className="absolute top-14 left-1/2 -translate-x-1/2 z-[2000] flex gap-2 items-center w-[500px]">
+        <Cardata
+          className="bg-white/80"
+          title="Calcul de distance"
+          headerAction={
+            <span className="relative flex size-3 cursor-pointer" onClick={() => setVisible(false)}>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75">
+
+              </span>
+              <span className="relative inline-flex  items-center justify-center text-[8px] text-white p-1 size-3 rounded-full bg-green-500">x</span>
+            </span>
+          }
+        >
+        <ul className="list-disc pl-5 items-center justify-center">
+          {listpoints.map((p, idx) => {
+            const distance = haversineDistance(currentPoint.latitude, currentPoint.longitude, p.latitude, p.longitude);
+            return (
+              <li className="flex justify-center items-center m-2 text-gray-500" key={p._id}>
+                {p.name} – {distance} km
+                {idx === 0 && <span className="text-green-600 font-semibold px-2"> (le plus proche)</span>}
+              </li>
+            );
+          })}
+        </ul>
+        </Cardata>
+      </div>
+    )}
     </div>
   );
-}
+};
 
 export default SearchBar;

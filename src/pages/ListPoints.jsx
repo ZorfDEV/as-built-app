@@ -11,8 +11,8 @@ const ListPoints = () => {
     const [error, setError] = useState(null);
     const columns = [
         { key: 'name', title: 'Nom' },
-        { key:'longitude', title: 'Longitude' },
-        { key: 'latitude', title: 'Latitude' },
+        { key:'nature', title: 'Type' },
+        { key: 'status', title: 'Statut' },
         { key: 'section_name', title: 'Section' },
        { key: 'createdAt', title: 'Créé le:' },
     ];

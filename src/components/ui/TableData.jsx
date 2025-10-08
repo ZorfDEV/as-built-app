@@ -10,6 +10,7 @@ import ExportExcel from './ExportExcel';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { getStatusBadge } from './../../utils/statusBage';
 
 
 const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, handleDelete,formatDataForExport  }) => {
@@ -70,7 +71,7 @@ const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, hand
   });*/
   
   return (
-    <Cardata>
+    <Cardata className="flex-1">
     <div className="m-4">
       <div className="flex flex-row-reverse  space-x-reverse gap-x-4 mt-6 mb-3  w-full ">
       <BtnLink to={goto} actionName='Ajouter' 
@@ -136,11 +137,14 @@ const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, hand
                           ?<img src={`http://localhost:5000${item.file}`} className="w-4 md:w-8 max-w-full max-h-full" alt="marqueur"/>
                           :column.key === 'createdAt'
                           ?<span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-  {item.createdAt 
-    ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr }) 
-    : 'Date non disponible'}
-</span>
-
+                          {item.createdAt 
+                         ? format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr }) 
+                          : 'Date non disponible'}
+                           </span>
+                          :column.key === "status" ? 
+                            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getStatusBadge(item.status)}`}>
+                              {item.status}
+                            </span>
                           :column.key === 'quantity'
                           ?<span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">{item.quantity}</span>
                           :column.key === 'users_name'

@@ -10,7 +10,7 @@ export default defineConfig({
     port: 5173, // Port de l'application
     proxy: {
       '/api': {
-       target: 'http://10.188.44.99:5000',
+        target: 'http://10.188.44.53:5000',
        //target: 'http://192.168.1.106:5000',
         changeOrigin: true,
         secure: false,

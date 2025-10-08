@@ -72,13 +72,13 @@ export default function ClusterMap({ points, checkpoints,markers }) {
             ? markers.find(marker => marker._id === point.marqueur_id)
             : null;
             console.log('Marker:', marker);
-            console.log('mark url:', `http://localhost:5000${marker.file}`);
+            console.log('mark url:', `/api${marker.file}`);
           return (
             <Marker
               key={point._id}
               position={[point.latitude, point.longitude]}
               icon={new L.Icon({
-                iconUrl: marker?.file ? `http://localhost:5000${marker.file}` : '/default.png',
+                iconUrl: marker?.file ? `/api${marker.file}` : '/default.png',
                 iconSize: [30, 30],
                 iconAnchor: [15, 30],
               })}

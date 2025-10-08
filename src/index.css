@@ -23,7 +23,8 @@
   --color-darkborder: #374151;
   /* Couleurs additionnelles */
 --color-brandgreen: #00EDA6; /* utilisable: bg-brandgreen, text-brandgreen */
---color-brandblue: #25335c; /* utilisable: bg-brandblue, text-brandblue */
+--color-brandblue: #201E5B; /* utilisable: bg-brandblue, text-brandblue */
+--color-brandblue2: #154194; /* utilisable: bg-lightbg, text-lightbg */
 }
 
 * {

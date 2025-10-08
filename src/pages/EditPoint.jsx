@@ -31,6 +31,17 @@ export default function EditPoint() {
     section_id: '',
     marqueur_id: ''
   });   */ 
+  const natures = [
+    { _id: 'pt-asbuilt', name: 'Construction As-Built', id: 1 },
+    { _id: 'incident', name: 'Incident', id: 2 },
+    { _id: 'maintenance', name: 'Maintenance', id: 3 }
+  ];
+  const statuses = [
+    { _id: 'active', name: 'Actif',id: 1 },
+    { _id: 'inactive', name: 'Inactive',id: 2 },
+    { _id: 'pending', name: 'En attente',id: 3 },
+    { _id: 'archived', name: 'Terminé',id: 4 }
+  ];
   const [loading, setLoading] = useState(true);
 const { id } = useParams();
 const navigate = useNavigate();
@@ -76,7 +87,9 @@ const handleSubmitForm = async (e) => {
       marqueur_id: formData.get('marqueur_id') || point.marqueur_id._id,
       latitude: point.latitude,
       longitude: point.longitude,
-      createdAt: new Date().toISOString()
+      nature: formData.get('nature') || point.nature,
+      status: formData.get('status') || point.status,
+      updatedAt: new Date().toISOString()
     };
 
     const latInput = formData.get('latitude').trim();
@@ -140,6 +153,12 @@ const handleSubmitForm = async (e) => {
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6 p-4">
           <Input name="latitude" defaultValue={point.latitude} label="latitude"  required className='p-2 px-2'/>
           <Input name="longitude" defaultValue={point.longitude} label="longitude"  required className='p-2 px-2'/>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6 p-4">
+          <InputSelect name="nature" defaultValue={point.nature} label="Nature"  required className='p-2 px-2'
+            datas={natures} />
+          <InputSelect name="status" defaultValue={point.status} label='Statut'  required className='p-2 px-2'
+            datas={statuses} />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6 p-4">
           <InputSelect name="section_id" defaultValue={point.section_id._id} label="Section"  required className='p-2 px-2'

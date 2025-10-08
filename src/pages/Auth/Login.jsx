@@ -82,20 +82,20 @@ export default function Login() {
         </div>
         {/* Bouton de Soumission */}
         <div className=" m-6 flex items-center justify-center">
-          <button type="submit"  className="relative flex space-x-2 group items-center justify-center focus:outline-none text-[#25335c] text-sm font-bold cursor-pointer sm:text-base bg-[#00eda6] w-full hover:text-white rounded-full py-2 h-12
+          <button type="submit"  className="relative flex space-x-2 group items-center justify-center focus:outline-none text-brandblue text-sm font-bold cursor-pointer sm:text-base bg-brandgreen w-full hover:text-brandgreen rounded-full py-2 h-12
                      before:absolute 
                       before:rounded-full
                       before:inset-0 
-                      before:bg-emerald-400 
+                      before:bg-brandblue
                       before:scale-x-0 
                       before:origin-right
                       before:transition
                       before:duration-300
                       hover:before:scale-x-100
                       hover:before:origin-left">
-            <span className="relative uppercase text-base">Se connecter</span>
+            <span className="relative text-base">Se connecter</span>
             <div class="flex items-center -space-x-3 translate-x-3">
-            <div class="w-2.5 h-[1.6px] rounded bg-white origin-left scale-x-0 transition duration-300 group-hover:scale-x-100"></div>
+            <div class="w-2.5 h-[1.6px] rounded bg-brandgreen origin-left scale-x-0 transition duration-300 group-hover:scale-x-100"></div>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 font-bold -translate-x-2 transition duration-300 group-hover:translate-x-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>

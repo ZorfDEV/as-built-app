@@ -16,11 +16,11 @@ const CardSimple = ({
       {(title || subtitle || headerAction) && (
         <div className="px-6  border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-            <div className=' flex-1 place-items-center'>
+            <div className=' flex-1 place-items-center py-2'>
               {title && (
-                <h2 className="text-lg font-semibold  text-gray-800 dark:text-gray-100">
+                <h3 className="text-md font-semibold  pt-2 text-gray-800 dark:text-gray-100">
                   {title}
-                </h2>
+                </h3>
               )}
               {subtitle && (
                 <p className=" text-sm text-gray-400 dark:text-darktext-secondary">

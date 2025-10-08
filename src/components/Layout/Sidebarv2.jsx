@@ -8,12 +8,12 @@ import { BsIntersect } from "react-icons/bs";
 import { HiMiniUsers } from "react-icons/hi2";
 import { IoMdSettings } from "react-icons/io";
 import { RiScissorsCutFill } from "react-icons/ri";
-
+import { FaChartPie } from "react-icons/fa6";
 const Sidebarv2 = ({ isOpen, toggleSidebar }) => {
   const menuItems = [
     { label: 'Carte', path: '/dashboard/home', icon: RiMap2Fill, name: 'Dashboard' },
     { label: 'Lieux', path: '/dashboard/list-points', icon: RiMapPin2Fill, name: 'Points' },
-    { label: 'Incidents', path: '/dashboard/incidents', icon: RiScissorsCutFill, name: 'Incidents' },
+    { label: 'Statistiques', path: '/dashboard/incidents', icon: FaChartPie, name: 'Statistiques' },
     { label: 'Section', path: '/dashboard/list-sections', icon: BsIntersect, name: 'Section' },
     { label: 'Utilisateurs', path: '/dashboard/list-users', icon: HiMiniUsers, name: 'Utilisateurs' },
     { label: 'Réglages', path: '/dashboard/settings', icon: IoMdSettings, name: 'Réglages' },
@@ -69,7 +69,7 @@ const Sidebarv2 = ({ isOpen, toggleSidebar }) => {
       <button
         onClick={toggleSidebar}
         className="cursor-pointer m-3 flex items-center justify-center
-        rounded-md bg-blue-950 p-2 text-2xl text-white
+        rounded-md bg-brandblue2 p-2 text-2xl text-white
         font-bold hover:bg-brandgreen hover:text-brandblue duration-300 
         dark:bg-surface dark:text-darktext-primary 
         dark:hover:bg-brandgreen dark:hover:text-brandblue"

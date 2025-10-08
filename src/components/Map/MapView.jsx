@@ -113,7 +113,8 @@ setCenter([latitudeconv, longitudeconv]);
     iconAnchor: [16, 32],
   });
 
-  const ORS_API_KEY = '5b3ce3597851110001cf6248d10b88622627a47934615c52671cfb8959a9befa537aa376f8adc900'; //  votre clé API ORS
+  const ORS_API_KEY = '5b3ce3597851110001cf6248d10b88622627a47934615c52671cfb8959a9befa537aa376f8adc900'; 
+  //  votre clé API ORS
 
   useEffect(() => {
     const fetchPoints = async () => {
@@ -237,7 +238,7 @@ const [lonB, latB] = coordsB;
          variant='success'
          icon={<TiArrowMaximise/>}
          className="grid w-full    grid-cols-1  py-1.5 pr-2 pl-3   cursor-pointer">
-          <span className='text-sm ml-2'>Distance</span>
+          <span className='text-sm ml-2'>Itinéraire</span>
         </ButtonForm>
         <span className="absolute shadow-md  rounded-md w-0 p-0 group-hover:w-fit group-hover:p-2 group-hover:mt-1 bg-white overflow-hidden duration-300">Cal.distance</span>
         </div>
