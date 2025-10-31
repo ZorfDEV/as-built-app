@@ -11,7 +11,7 @@ import Input from './../../components/ui/Input';
 import toast from 'react-hot-toast';
 import LayoutLogin from './../../components/Layout/LayoutLogin';
 import CardAuth from '../../components/ui/CardAuth';
-import iconeHumain from './../../assets/img/icone-humain.svg'; 
+import iconeHumain from './../../assets/img/as-built.svg'; 
 
 
 const validationSchema = yup.object({

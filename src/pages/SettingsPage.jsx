@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {  useNavigate } from 'react-router-dom';
 import { FaArrowCircleRight } from "react-icons/fa";
 import ButtonForm from '../components/ui/ButtonForm';
-
+import Spinner from '../components/ui/Spinner';
 export default function SettingsPage() {
   const navigate = useNavigate();
   const [settings, setSettings] = useState({
@@ -78,7 +78,7 @@ export default function SettingsPage() {
            </div>
 
       </div>
-
+    <Spinner />
       <div className="mt-6 text-right">
         <button
           onClick={handleSave}

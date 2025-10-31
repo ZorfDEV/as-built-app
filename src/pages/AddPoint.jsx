@@ -177,21 +177,37 @@ const missing = requiredCols.filter(col => !fileCols.includes(col));
   // Fonction pour gérer l'upload du fichier Excel
   // Elle envoie les données au backend pour traitement
   const handleUploadExcel = async (e) => {
-    e.preventDefault();
-    if (!file) return;
+  e.preventDefault();
+  if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      await axios.post('http://localhost:5000/upload/xlsx', formData);
-      toast.success('Fichier importé avec succès');
-      handleResetFile();
-    } catch {
-      toast.error('Erreur upload Excel');
-      console.log(Object.fromEntries(formData));
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    await axios.post('http://10.188.44.48:5000/upload/xlsx', formData);
+    toast.success('✅ Fichier importé avec succès');
+    handleResetFile();
+  } catch (error) {
+    const status = error.response?.status;
+    const backendMessage = error.response?.data?.message;
+
+    let message = '❌ Erreur inattendue.';
+
+    if (status === 400) {
+      message = backendMessage || 'Requête invalide : vérifiez votre fichier.';
+    } else if (status === 500) {
+      message = backendMessage || 'Erreur interne du serveur. Contactez l’administrateur.';
+    } else if (!status) {
+      message = 'Impossible de contacter le serveur. Vérifiez votre connexion.';
+    } else {
+      message = backendMessage || `Erreur inconnue (${status}).`;
     }
-  };
+
+    toast.error(message);
+    console.error(`Erreur ${status || 'network'}:`, backendMessage || error);
+  }
+};
+
 
   const handleResetFile = () => {
     setFile(null);

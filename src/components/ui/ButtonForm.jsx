@@ -31,7 +31,7 @@ const ButtonForm = ({
     outline_danger:"border-1 border-red-300  text-red-600  hover:bg-red-700  focus:ring-red-600 hover:text-white ",
     outline_warning:"border-1 border-yellow-300  text-yellow-500  hover:bg-yellow-600  focus:ring-yellow-500   hover:text-white  ",
     ghost: "text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500",
-    default:' flex items-center justify-center',
+    default:' flex items-center justify-center text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-gray-500 rounded-full',
   };
 
   const sizes = {
@@ -46,8 +46,8 @@ const ButtonForm = ({
     xs: "h-3 w-3",
     sm: "h-4 w-4",
     md: "h-5 w-5",
-    lg: "h-5 w-5",
-    xl: "h-6 w-6",
+    lg: "h-6 w-6",
+    xl: "h-8 w-8",
   };
 
   const buttonClasses = clsx(

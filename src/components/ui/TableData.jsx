@@ -13,7 +13,8 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { getStatusBadge } from './../../utils/statusBage';
 
 
-const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, handleDelete,formatDataForExport  }) => {
+const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit,
+      handleDelete,formatDataForExport, selectedRows = [],onSelectRow,onSelectAll,onDeleteSelected  }) => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [sortedData, setSortedData] = useState([]);
@@ -63,16 +64,19 @@ const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, hand
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
- /*const filteredData = data.filter((item) => {
-    return (
-      (item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.type_movement && item.type_movement.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  });*/
+ const allSelected = selectedRows.length === data.length && data.length > 0;
   
   return (
     <Cardata className="flex-1">
     <div className="m-4">
+      <div className="flex justify-between items-center mb-4 mt-6 ">
+        <button
+          onClick={onDeleteSelected}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
+        >
+          Supprimer sélectionnés
+        </button>
+      </div>
       <div className="flex flex-row-reverse  space-x-reverse gap-x-4 mt-6 mb-3  w-full ">
       <BtnLink to={goto} actionName='Ajouter' 
       className='inline-flex items-center gap-2 p-2  bg-brandgreen text-white rounded-lg hover:text-brandgreen  hover:bg-brandblue
@@ -99,6 +103,8 @@ const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, hand
               <th scope="col" className="p-3 dark:border-darkborder dark:border">
                     <div className="flex items-center">
                         <input id="checkbox-all-search" type="checkbox"
+                         checked={allSelected}
+                          onChange={onSelectAll}
                          className="w-4 h-4 bg-gray-100 text-brandblue border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-darktext-primary dark:ring-offset-surface dark:focus:ring-offset-gray-800 focus:ring-1 dark:bg-gray-700 dark:border-darkborder accent-brandgreen  " />
                         <label htmlFor="checkbox-all-search" className="sr-only">checkbox</label>
                     </div>
@@ -123,6 +129,8 @@ const DataTable = ({ data, goto, columns,fileNames, handleView, handleEdit, hand
                     <td scope="col" className="p-3 hidden md:table-cell dark:border-darkborder dark:border">
                     <div className="flex items-center">
                         <input id="checkbox-all-search" type="checkbox"
+                         checked={selectedRows.includes(item._id || item.id)}
+                          onChange={() => onSelectRow(item._id || item.id)}
                          className="w-4 h-4 bg-gray-100  border-gray-300 rounded focus:ring-gray-500 dark:focus:ring-darktext-primary dark:ring-offset-surface dark:focus:ring-offset-gray-800 focus:ring-1 dark:bg-gray-700 dark:border-darkborder accent-brandgreen  " />
                         <label htmlFor="checkbox-all-search" className="sr-only">checkbox</label>
                     </div>

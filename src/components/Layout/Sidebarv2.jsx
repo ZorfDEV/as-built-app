@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import logo from '../../assets/img/axione-gabon.png';
-import logoMin from '../../assets/img/icone-humain.svg';  
+import logo from '../../assets/img/as-builtlogoB.png';
+import logoMin from '../../assets/img/as-built.svg';  
 import { MdMenuOpen } from 'react-icons/md';
 import { RiMap2Fill, RiMapPin2Fill } from "react-icons/ri";
 import { AiFillAlert } from "react-icons/ai";

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import iconeHumain from './../../assets/img/icone-humain.svg'; 
+import iconeHumain from './../../assets/img/as-built.svg'; 
 
 const LayoutLogin = ({ title, children }) => {
   return (

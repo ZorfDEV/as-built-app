@@ -54,7 +54,7 @@ export default function ClusterMap({ points, checkpoints,markers }) {
       ? 'bg-green-500'
       : count < 100
       ? 'bg-yellow-500'
-      : 'bg-red-500';
+      : 'bg-blue-500';
 
     return L.divIcon({
       html: `

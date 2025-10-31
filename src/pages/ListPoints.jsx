@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import TableData from './../components/ui/TableData'
 import toast from 'react-hot-toast'; 
+import Spinner from './../components/ui/Spinner'
 
 const ListPoints = () => {
 
@@ -16,12 +17,51 @@ const ListPoints = () => {
         { key: 'section_name', title: 'Section' },
        { key: 'createdAt', title: 'Créé le:' },
     ];
+     const [selectedPoints, setSelectedPoints] = useState([]);
 
     const token = localStorage.getItem('token');
     const headers = useMemo(() => ({
             Authorization: `Bearer ${token}`
          }), [token]);
 
+//logique pour selectionner plusieurs points
+const handleSelectRow = (id) => {
+    setSelectedPoints((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPoints.length === points.length) {
+      setSelectedPoints([]);
+    } else {
+      setSelectedPoints(points.map((p) => p._id));
+    }
+  };
+
+  //logique pour supprimer plusieurs points
+   const handleDeleteSelected = async () => {
+    if (selectedPoints.length === 0) {
+      toast.error("Aucun point sélectionné.");
+      return;
+    }
+
+    if (!window.confirm(`Supprimer ${selectedPoints.length} point(s) ?`)) return;
+
+    try {
+      const res = await axios.delete("/api/points/deletemultiple", { headers, data: { ids: selectedPoints } });
+      toast.success(res.data.message);
+      setPoints((prev) => prev.filter((p) => !selectedPoints.includes(p._id)));
+      setSelectedPoints([]);
+    } catch (err) {
+      const msg = err.response?.data?.message || "Erreur lors de la suppression.";
+      toast.error(msg);
+      console.log('Erreur lors de la suppression multiple :', selectedPoints);
+      console.error(err);
+    }
+  };
+
+  //logique pour charger les points
     useEffect(() => {
         axios.get('/api/points',{headers })
             .then(response => {
@@ -55,16 +95,17 @@ const ListPoints = () => {
     const handleEdit = useCallback((id) => {
         setActionData({ type: 'edit', id });
     }, []);
-
-    const handleDelete = useCallback((id) => {
-
+//logique pour supprimer un point avec son id
+const handleDelete = useCallback((id) => {
  const confirm = window.confirm(`Êtes-vous sûr de vouloir supprimer la section ${id} ?`);
   if (!confirm) return;
-     setLoading(true);
+     //setLoading(true);
 
         axios.delete(`/api/points/${id}`,{headers })
             .then(() => {
-                setPoints(points.filter(point => point._id !== id));
+                //setPoints(points.filter(point => point._id !== id));
+                setPoints((prev) => prev.filter((p) => p._id !== id));
+                //setLoading(false);
                 toast.success('Point supprimé avec succès');
             })
             .catch(error => {
@@ -76,7 +117,7 @@ const ListPoints = () => {
             console.error("Erreur lors de la suppression :", error);
             setLoading(false);
         });
-    }, [points,headers]);
+    }, [headers]);
 
     
 
@@ -101,14 +142,18 @@ const ListPoints = () => {
     }
 
 
-    if (loading) return <div>Chargement...</div>;
+    if (loading) return <Spinner />;
     if (error) return <div>{error}</div>;
 
     return (
        <div className='translate-all p-4 flex-1'>
      <TableData data={points} columns={columns} goto='/dashboard/add-point'
+                 selectedRows={selectedPoints}
+                 onSelectRow={handleSelectRow}
+                 onSelectAll={handleSelectAll}
+                onDeleteSelected={handleDeleteSelected}
                  handleView={handleView} handleEdit={handleEdit} handleDelete={handleDelete}
-                  formatDataForExport={formatDataForExport()}  fileNames='Mapref'/>
+                formatDataForExport={formatDataForExport()}  fileNames='Mapref'/>
         </div>
     );
 };

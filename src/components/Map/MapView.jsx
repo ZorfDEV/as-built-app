@@ -14,37 +14,67 @@ import CustomZoomControl from './CustomZoomControl';
 import 'leaflet/dist/leaflet.css';
 import { haversineDistance,convertDMSToDecimal,generateId } from '../../utils/distance';
 import { RiMapPinAddFill,RiPinDistanceFill } from "react-icons/ri";
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import InputSelect from '../ui/InputSelect';
 import { useAuth } from '../../contexts/AuthContext';
 import { RiScissorsCutLine } from "react-icons/ri";
 import { TiArrowMaximise } from "react-icons/ti";
+import { FiEye} from 'react-icons/fi'
+import Spinner from '../ui/Spinner';
+import { GeoJSON } from 'react-leaflet';
+
 
 export default function MapView({ header, isOpen }) {
 
-   const { darkMode} = useOutletContext();
-   const { user } = useAuth();
+  const { darkMode} = useOutletContext();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [points, setPoints] = useState([]);
+  const [center, setCenter] = useState([-0.602957760686725, 11.912091195294634
+]); 
+const [gabonBorders, setGabonBorders] = useState(null);
 
-const [points, setPoints] = useState([]);
- const [center, setCenter] = useState([0.4069071, 9.4686676]); 
- //const center = [0.4069, 9.4686]; 
   const [loading, setLoading] = useState(true);
   const [pointAName, setPointAName] = useState('');
   const [pointBName, setPointBName] = useState('');
   const [routeCoords, setRouteCoords] = useState([]);
   const [duration, setDuration] = useState(null);
-  //const [routeDistance, setRouteDistance] = useState(null);
- const [distance, setDistance] = useState(null);
+  const [distance, setDistance] = useState(null);
   const mapRef = useRef();
   const [showForm, setShowForm] = useState(false);
   const [mapReady, setMapReady] = useState(false);
-const [addedPoint, setAddedPoint] = useState(null);
-//const [lib, setLib] = useState('');
-const [sections, setSections] = useState([]); // Add this line to define 'section'
- const [activeLayer, setActiveLayer] = useState(darkMode ? "satellite" : "standard");
- const uniqueId = generateId(5);
-const pointName = `Point-incident-${uniqueId}`;
+  const [addedPoint, setAddedPoint] = useState(null);
+  const [sections, setSections] = useState([]); 
+  const [activeLayer, setActiveLayer] = useState(darkMode ? "satellite" : "standard");
+  const [piName, setPiName] = useState(null);
+  const [boundsFitted, setBoundsFitted] = useState(false);
+const [bounds, setBounds] = useState(null);
 
+  // chargement des frontières du Gabon
+  useEffect(() => {
+  const loadBorders = async () => {
+    try {
+      const res = await axios.get('/datas/ga.geojson');
+      setGabonBorders(res.data);
+       // Création des limites à partir du GeoJSON
+        const layer = L.geoJSON(res.data);
+        const geoBounds = layer.getBounds();
+        setBounds(geoBounds);
+
+        // Appliquer fitBounds une fois la carte prête
+        if (mapRef.current) {
+          mapRef.current.fitBounds(geoBounds);
+          mapRef.current.setMaxBounds(geoBounds);
+        }
+    } catch (err) {
+      console.error("Erreur lors du chargement des frontières du Gabon :", err);
+    }
+  };
+  loadBorders();
+}, []);
+
+
+  // Mise à jour du calque actif en fonction du mode sombre
  useEffect(() => {
     setActiveLayer(darkMode ? "satellite" : "standard");
   }, [darkMode]);
@@ -56,22 +86,20 @@ const  handleAddPoint = () => {
   
 //creation point incident
  const handleSubmit = async (e) => {
-
   e.preventDefault();
   const map = mapRef.current;
   console.log('mapRef:', mapRef.current);
   console.log('mapReady:', mapReady);
   const formData = new FormData(e.target);
+   const uniqueId = generateId(5);
+  const pointName = `Point-incident-${uniqueId}`;
  // récupère séparément latitude et longitude
   const latDMS = formData.get('latitude').trim();
   const lonDMS = formData.get('longitude').trim();
 
   const latitudeconv = convertDMSToDecimal(latDMS);
   const longitudeconv = convertDMSToDecimal(lonDMS);
-
-  console.log('Valeurs saisies:', { lat: latitudeconv, lng: longitudeconv });
-
-
+  //console.log('Valeurs saisies:', { lat: latitudeconv, lng: longitudeconv });
   if (isNaN(latitudeconv) || isNaN(longitudeconv) || latitudeconv < -90 || latitudeconv > 90 || longitudeconv < -180 || longitudeconv > 180) {
     toast.error("Coordonnées invalides");
     return;
@@ -90,6 +118,7 @@ const  handleAddPoint = () => {
       await axios.post('/api/points/pointsincident', pointData, { headers: header });
       console.log('Point ajouté avec succès', pointData);
       toast.success('Point ajouté avec succès');
+      setPiName(pointData.name);
       e.target.reset();
     } catch (error) {
       console.error('Erreur lors de l\'ajout du point', error);
@@ -105,43 +134,30 @@ setShowForm(false);
 setCenter([latitudeconv, longitudeconv]);
 //console.log('Nouveau point ajouté:', { lat: latitudeconv, lng: longitudeconv });
 };
-
-
   const redIcon = new L.Icon({
     iconUrl: '/api/uploads/ic-markers/file-1748179928428-572680519.svg',
     iconSize: [32, 32],
     iconAnchor: [16, 32],
   });
-
+ //  votre clé API ORS
   const ORS_API_KEY = '5b3ce3597851110001cf6248d10b88622627a47934615c52671cfb8959a9befa537aa376f8adc900'; 
-  //  votre clé API ORS
-
+ 
+ // Récupération de tous les points
   useEffect(() => {
     const fetchPoints = async () => {
       try {
-        const res = await axios.get('/api/points', { headers: header });
+        const res = await axios.get('/api/points/map', { headers: header });
         setPoints(res.data);
         console.log('Points récupérés:', res.data);
-      /*axios.get('/api/sections',{headers:header}).then(res => {
-      setSections(res.data);
-      console.log('Sections:', res.data);
-    });*/
-      /*  if (res.data.length === 0 && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(pos => {
-            setCenter([pos.coords.latitude, pos.coords.longitude]);
-          });
-        } else {
-          const first = res.data[0];
-          setCenter([first.latitude, first.longitude]);
-        }*/
       } catch (err) {
         console.error('Erreur API carte:', err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPoints();
+  const interval = setInterval(fetchPoints, 20000);
+  return () => clearInterval(interval);
   }, [header]);
 
  const getCoordinates = (name) => {
@@ -149,6 +165,7 @@ setCenter([latitudeconv, longitudeconv]);
     return point ? [point.longitude, point.latitude] : null;
   };
 
+  //Trace route
   const handleRoute = async () => {
     const coordsA = getCoordinates(pointAName);
     const coordsB = getCoordinates(pointBName);
@@ -167,44 +184,11 @@ setRouteCoords([
 // calcul distance haversine
 const [lonA, latA] = coordsA;
 const [lonB, latB] = coordsB;
- setDistance(haversineDistance(latA, lonA, latB, lonB));
+setDistance(haversineDistance(latA, lonA, latB, lonB));
 
-    setDuration(null); // Réinitialiser la durée avant de faire la requête
-    /*  try {
-      const response = await axios.post(
-  'https://api.openrouteservice.org/v2/directions/driving-car',
-  {
-    coordinates: [coordsA, coordsB]
-  },
-  {
-    headers: {
-      'Authorization': ORS_API_KEY,
-      'Content-Type': 'application/json'
-    }
-  }
-);
-
-     // const geometry = response.data.geometry;
-      const geometry = response.data.features[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-      const distanceMeters = response.data.routes[0].summary.distance;
-      setDistance((distanceMeters / 1000).toFixed(2)); // Convertir en kilomètres
-      const durationSeconds = response.data.routes[0].summary.duration;
-       setDuration((durationSeconds / 60).toFixed(1)); // Convertir en minutes
-      //const encodedGeometry = response.data.routes[0].geometry;
-      const encodedGeometry = geometry;
-      const decoded = polyline.decode(encodedGeometry)
-      setRouteCoords(decoded.map(([lat, lng]) => [lng, lat])); // Inverser l'ordre pour Leaflet
-      //const decodedCoords = L.Polyline.fromEncoded(encodedGeometry).getLatLngs().map(latlng => [latlng.lng, latlng.lat]);
-
-    } catch (error) {
-      console.error('Erreur lors de la récupération de l\'itinéraire:', error);
-      console.error('Détails de l\'erreur:', error.response ? error.response.data : error.message);
-      //setRouteCoords([]);
-      toast.error('Erreur lors de la récupération de l\'itinéraire.');
-    }*/
-
+    setDuration(null); 
   };
-
+//chargement des sections
     useEffect(() => {
     axios.get('/api/sections', { headers: header }).then(res => {
       setSections(res.data);
@@ -225,7 +209,7 @@ const [lonB, latB] = coordsB;
   if (loading){ 
   // Afficher un indicateur de chargement
   //setMapReady(true);
-    return <div className='items-center justify-center bg-white z-1000 absolute top-60 rounded shadow'><ButtonForm isLoading >Chargement...</ButtonForm></div>;
+    return <div className='flexitems-center justify-center bg-white z-1000  top-60 rounded shadow'><Spinner /></div>;
 }
   return (
   <div className="h-full w-full">
@@ -307,7 +291,9 @@ const [lonB, latB] = coordsB;
       </div>
       <MapContainer 
       center={center}
-       zoom={12} 
+       zoom={7}
+        maxBounds={bounds}
+        maxBoundsViscosity={1.0} // 1.0 = impossible de sortir de la zone
        zoomControl={false}
        style={{ height: '100%', width: '100%' }}
        ref={mapRef}
@@ -339,7 +325,7 @@ const [lonB, latB] = coordsB;
       ? 'bg-green-500'
       : count < 100
       ? 'bg-yellow-500'
-      : 'bg-red-500';
+      : 'bg-blue-500';
 
     return L.divIcon({
       html: `
@@ -368,19 +354,25 @@ const [lonB, latB] = coordsB;
             </Tooltip>
             <Popup>
               <span className="text-xs text-gray-500">{point.description}</span><br />
-              <span className="text-xs text-gray-500">Latitude: {point.latitude}</span><br />
-              <span className="text-xs text-gray-500">Longitude: {point.longitude}</span><br />
+              <div className='flex items-center  space-x-4'>
+                <div className='flex-1'>
+                  <button className="mt-2 bg-[#00AED1] text-white text-xs px-2 py-1 cursor-pointer rounded hover:bg-blue-700 " onClick={() => { navigate(`/dashboard/point/view/${point._id}`); }}>
+                    <FiEye/>
+                  </button>
+                </div>
+                <div className="flex-1">
               <button
-    onClick={() => {
-      //const coordsText = `${p.latitude}, ${p.longitude}`;
+        onClick={() => {
       const shareLink = `https://maps.google.com?q=${point.latitude},${point.longitude}`;
       navigator.clipboard.writeText(shareLink);
       toast.success("Lien copié dans le presse-papier !");
     }}
-    className="mt-2 bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-700"
+    className="mt-2 bg-brandgreen text-white text-xs px-2 py-1 cursor-pointer rounded hover:bg-blue-700"
   >
     <MdShare /> 
   </button>
+  </div>
+              </div>
             </Popup>
           </Marker>
         ))}
@@ -388,10 +380,10 @@ const [lonB, latB] = coordsB;
       {addedPoint && (
           <Marker position={[addedPoint.lat, addedPoint.lng]} icon={redIcon}>
             <Tooltip permanent>
-              <span>{pointName}</span>
+              <span>{piName}</span>
             </Tooltip>
             <Popup>
-              <strong>{pointName}</strong><br />
+              <strong>{piName}</strong><br />
             </Popup>
           </Marker>
         )}
@@ -410,6 +402,24 @@ const [lonB, latB] = coordsB;
             </Popup>
         </Polyline>
       )}
+     {gabonBorders && (
+  <GeoJSON
+    data={gabonBorders}
+    style={{
+      color: "#BFBFBF",
+      weight: 1,
+      opacity: 0.8,
+      fillOpacity: 0.05,
+    }}
+   onEachFeature={(_, layer) => {
+  if (!boundsFitted && mapRef.current) {
+    mapRef.current.fitBounds(layer.getBounds());
+    setBoundsFitted(true);
+  }
+}}
+  />
+)}
+
     </MapContainer> 
   </div>
   );

@@ -11,6 +11,7 @@ import { MdDeleteSweep } from "react-icons/md";
 import { MdOutlineModeEdit } from "react-icons/md";
 import ClusterMap from "../components/Map/ClusterMap";
 import { useParams } from "react-router-dom";
+import { FiEdit } from "react-icons/fi";
 
 const ViewPoint = () => {
     const { id } = useParams();
@@ -78,8 +79,8 @@ useEffect(() => {
       details={details} 
       title="Détails du point"
               characteristics={<ButtonContainer>
-              <ButtonForm onClick={() => navigate(`/dashboard/point/edit/${id}`)} icon={<MdOutlineModeEdit />} variant="outline_success"/>
-              <ButtonForm onClick={handleDelete} icon ={<MdDeleteSweep />} variant="outline_danger"/>
+              <ButtonForm onClick={() => navigate(`/dashboard/point/edit/${id}`)} icon={<FiEdit />} variant="outline_secondary" iconSizes="md"/>
+              <ButtonForm onClick={handleDelete} icon ={<MdDeleteSweep />} variant="outline_danger" iconSizes="md"/>
             </ButtonContainer>}
               children={<ClusterMap points={point} checkpoints={false} />}
             />
